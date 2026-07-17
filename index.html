@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes của Phú</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --ink: #1f1f1f;
+    --muted: #6b6b6b;
+    --accent: #2f6f4f;
+    --accent-soft: #e6f0ea;
+    --border: #e5e2db;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+  header {
+    margin-bottom: 32px;
+  }
+  h1 {
+    font-size: 1.6rem;
+    margin: 0 0 4px;
+  }
+  .sub {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 24px 0 32px;
+  }
+  #search {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: var(--card);
+    color: var(--ink);
+  }
+  #search:focus { outline: none; border-color: var(--accent); }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag-btn {
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tag-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .tag-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .count {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+  .note {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .note h2 {
+    font-size: 1.05rem;
+    margin: 0 0 6px;
+  }
+  .note .date {
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-bottom: 10px;
+  }
+  .note p {
+    margin: 0 0 12px;
+    white-space: pre-wrap;
+    font-size: 0.94rem;
+  }
+  .note .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .note .tag-chip {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.75rem;
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+  .empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 40px 0;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📝 Notes của Phú</h1>
+    <div class="sub">Lưu chủ đề thú vị, ghi chú thường ngày</div>
+  </header>
+
+  <div class="controls">
+    <input id="search" type="text" placeholder="Tìm theo tiêu đề, nội dung, tag...">
+    <div class="tags" id="tagFilters"></div>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div id="noteList"></div>
+</div>
+
+<script>
+/* ============================================================
+   THÊM NOTE MỚI Ở ĐÂY.
+   Mỗi note gồm: title, date (YYYY-MM-DD), tags (mảng), content.
+   Copy 1 khối {...} bên dưới, sửa nội dung, dán thêm vào mảng.
+   Note mới nên để lên đầu hoặc bất kỳ đâu — trang tự sắp theo ngày mới nhất.
+============================================================ */
+const notes = [
+  {
+    title: "Chào mừng đến với trang note cá nhân",
+    date: "2026-07-17",
+    tags: ["hướng dẫn"],
+    content: "Đây là note mẫu. Để thêm note mới, mở file này bằng trình soạn thảo text (Notepad, VS Code...), tìm đến mảng 'notes' trong phần <script>, và thêm một khối như thế này vào đầu danh sách:\n\n{\n  title: \"Tiêu đề note\",\n  date: \"2026-07-18\",\n  tags: [\"chủ đề 1\", \"chủ đề 2\"],\n  content: \"Nội dung note của bạn ở đây.\"\n},\n\nLưu file lại rồi mở lại bằng trình duyệt là thấy note mới ngay."
+  },
+  {
+    title: "Ý tưởng hay ho",
+    date: "2026-07-16",
+    tags: ["ý tưởng", "công việc"],
+    content: "Ví dụ một note về công việc — ghi lại ý tưởng cải tiến quy trình, việc cần làm, hoặc bất cứ điều gì muốn nhớ."
+  },
+  {
+    title: "Điều thú vị đọc được hôm nay",
+    date: "2026-07-15",
+    tags: ["thú vị", "đọc"],
+    content: "Ví dụ một note về chủ đề thú vị — bài viết hay, sự kiện đáng chú ý, hoặc kiến thức mới học được."
+  }
+];
+/* ============================================================
+   HẾT PHẦN CẦN SỬA. Không cần đụng vào code bên dưới.
+============================================================ */
+
+let activeTags = new Set();
+let searchTerm = "";
+
+function allTags() {
+  const s = new Set();
+  notes.forEach(n => n.tags.forEach(t => s.add(t)));
+  return [...s].sort();
+}
+
+function formatDate(d) {
+  const [y, m, day] = d.split("-");
+  return `${day}/${m}/${y}`;
+}
+
+function renderTagFilters() {
+  const el = document.getElementById("tagFilters");
+  el.innerHTML = "";
+  allTags().forEach(tag => {
+    const btn = document.createElement("button");
+    btn.className = "tag-btn" + (activeTags.has(tag) ? " active" : "");
+    btn.textContent = tag;
+    btn.onclick = () => {
+      activeTags.has(tag) ? activeTags.delete(tag) : activeTags.add(tag);
+      render();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function matchesFilter(note) {
+  const term = searchTerm.trim().toLowerCase();
+  const matchesSearch = !term ||
+    note.title.toLowerCase().includes(term) ||
+    note.content.toLowerCase().includes(term) ||
+    note.tags.some(t => t.toLowerCase().includes(term));
+  const matchesTags = activeTags.size === 0 ||
+    note.tags.some(t => activeTags.has(t));
+  return matchesSearch && matchesTags;
+}
+
+function render() {
+  renderTagFilters();
+  const sorted = [...notes].sort((a, b) => b.date.localeCompare(a.date));
+  const filtered = sorted.filter(matchesFilter);
+
+  document.getElementById("count").textContent =
+    `${filtered.length} / ${notes.length} note`;
+
+  const list = document.getElementById("noteList");
+  list.innerHTML = "";
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty">Không tìm thấy note nào phù hợp.</div>`;
+    return;
+  }
+
+  filtered.forEach(note => {
+    const div = document.createElement("div");
+    div.className = "note";
+    div.innerHTML = `
+      <h2>${escapeHtml(note.title)}</h2>
+      <div class="date">${formatDate(note.date)}</div>
+      <p>${escapeHtml(note.content)}</p>
+      <div class="tag-list">
+        ${note.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+document.getElementById("search").addEventListener("input", e => {
+  searchTerm = e.target.value;
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
