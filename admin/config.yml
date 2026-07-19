@@ -5,6 +5,9 @@ backend:
   identity_url: https://vinhphu-notes-app.netlify.app/.netlify/identity
   gateway_url: https://vinhphu-notes-app.netlify.app/.netlify/git
 
+site_url: https://vinhxphus.github.io/notes-/
+display_url: https://vinhxphus.github.io/notes-/
+
 media_folder: "images"
 public_folder: "/images"
 
