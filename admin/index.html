@@ -12,8 +12,6 @@
     div, span, p, li, a, button, label {
       white-space: normal !important;
       overflow-wrap: break-word !important;
-      word-break: break-word !important;
-      text-overflow: unset !important;
       min-width: 0 !important;
     }
     #viewSiteBtn {
@@ -29,6 +27,14 @@
       padding: 7px 14px;
       border-radius: 999px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      white-space: nowrap !important;
+    }
+    @media (max-width: 600px) {
+      #viewSiteBtn {
+        top: auto;
+        bottom: 14px;
+        right: 14px;
+      }
     }
   </style>
 </head>
