@@ -42,6 +42,19 @@
     .wrap { padding: 28px 16px 60px; }
     h1 { font-size: 1.35rem; }
     .note { padding: 14px 16px; }
+    .header-top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .header-actions {
+      justify-content: flex-start;
+    }
+    .icon-btn {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+    .note-body { font-size: 0.9rem; }
+    .otd-banner { font-size: 0.82rem; }
   }
   header {
     margin-bottom: 24px;
@@ -223,6 +236,7 @@
       <div class="header-actions">
         <button id="themeToggle" class="icon-btn" type="button">🌙</button>
         <button id="randomBtn" class="icon-btn" type="button">🎲 Ngẫu nhiên</button>
+        <a href="admin/" class="icon-btn">🔐 Quản trị</a>
       </div>
     </div>
   </header>
