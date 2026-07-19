@@ -9,6 +9,89 @@
 <body>
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   <script>
+    /* Custom widget: ghi âm trực tiếp trong form, lưu dưới dạng data URL
+       (không cần upload file riêng lên GitHub). */
+    var AudioRecorderControl = createClass({
+      getInitialState: function () {
+        return { recording: false, seconds: 0 };
+      },
+      startRecording: function () {
+        var self = this;
+        if (!navigator.mediaDevices || !window.MediaRecorder) {
+          alert("Trình duyệt này không hỗ trợ ghi âm.");
+          return;
+        }
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+          self.chunks = [];
+          self.stream = stream;
+          self.recorder = new MediaRecorder(stream);
+          self.recorder.ondataavailable = function (e) {
+            if (e.data.size > 0) self.chunks.push(e.data);
+          };
+          self.recorder.onstop = function () {
+            var blob = new Blob(self.chunks, { type: "audio/webm" });
+            var reader = new FileReader();
+            reader.onloadend = function () {
+              self.props.onChange(reader.result);
+            };
+            reader.readAsDataURL(blob);
+            self.stream.getTracks().forEach(function (t) { t.stop(); });
+          };
+          self.recorder.start();
+          self.setState({ recording: true, seconds: 0 });
+          self.timer = setInterval(function () {
+            self.setState({ seconds: self.state.seconds + 1 });
+          }, 1000);
+        }).catch(function () {
+          alert("Không truy cập được micro. Kiểm tra quyền micro cho trình duyệt rồi thử lại.");
+        });
+      },
+      stopRecording: function () {
+        if (this.recorder) this.recorder.stop();
+        clearInterval(this.timer);
+        this.setState({ recording: false });
+      },
+      clear: function () {
+        this.props.onChange("");
+      },
+      render: function () {
+        var value = this.props.value;
+        var seconds = this.state.seconds;
+        var mm = Math.floor(seconds / 60);
+        var ss = seconds % 60;
+        var label = (mm < 10 ? "0" : "") + mm + ":" + (ss < 10 ? "0" : "") + ss;
+        return h(
+          "div",
+          { style: { padding: "6px 0" } },
+          !this.state.recording
+            ? h("button", { type: "button", onClick: this.startRecording }, "⏺ Bắt đầu ghi")
+            : h("button", { type: "button", onClick: this.stopRecording }, "⏹ Dừng ghi (" + label + ")"),
+          value
+            ? h(
+                "div",
+                { style: { marginTop: "10px" } },
+                h("audio", { controls: true, src: value, style: { width: "100%" } }),
+                h(
+                  "button",
+                  { type: "button", onClick: this.clear, style: { marginTop: "6px", display: "block" } },
+                  "Xoá ghi âm"
+                )
+              )
+            : null
+        );
+      }
+    });
+
+    var AudioRecorderPreview = createClass({
+      render: function () {
+        var value = this.props.value;
+        if (!value) return h("div", {}, "(chưa có ghi âm)");
+        return h("audio", { controls: true, src: value, style: { width: "100%" } });
+      }
+    });
+
+    CMS.registerWidget("audiorecorder", AudioRecorderControl, AudioRecorderPreview);
+
     if (window.netlifyIdentity) {
       window.netlifyIdentity.on("init", user => {
         if (!user) {
