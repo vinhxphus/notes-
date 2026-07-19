@@ -38,6 +38,11 @@
     margin: 0 auto;
     padding: 48px 20px 80px;
   }
+  @media (max-width: 480px) {
+    .wrap { padding: 28px 16px 60px; }
+    h1 { font-size: 1.35rem; }
+    .note { padding: 14px 16px; }
+  }
   header {
     margin-bottom: 24px;
   }
@@ -65,15 +70,17 @@
     border: 1px solid var(--border);
     background: var(--card);
     color: var(--ink);
-    padding: 6px 12px;
+    padding: 9px 14px;
     border-radius: 999px;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     cursor: pointer;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 4px;
     white-space: nowrap;
+    min-height: 40px;
+    -webkit-tap-highlight-color: transparent;
   }
   .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
   .otd-banner {
@@ -95,10 +102,10 @@
   }
   #search {
     width: 100%;
-    padding: 10px 14px;
+    padding: 12px 14px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    font-size: 0.95rem;
+    font-size: 16px;
     background: var(--card);
     color: var(--ink);
   }
@@ -112,11 +119,13 @@
     border: 1px solid var(--border);
     background: var(--card);
     color: var(--muted);
-    padding: 5px 12px;
+    padding: 8px 14px;
     border-radius: 999px;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.15s ease;
+    min-height: 38px;
+    -webkit-tap-highlight-color: transparent;
   }
   .tag-btn:hover { border-color: var(--accent); color: var(--accent); }
   .tag-btn.active {
