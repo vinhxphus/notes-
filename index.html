@@ -205,6 +205,44 @@
     width: 100%;
     margin: 4px 0 14px;
   }
+  .link-preview {
+    display: flex;
+    gap: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 4px 0 14px;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--accent-soft);
+  }
+  .link-preview:hover { border-color: var(--accent); }
+  .link-preview-img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  .link-preview-text { min-width: 0; }
+  .link-preview-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+  }
+  .link-preview-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .link-preview-url {
+    font-size: 0.78rem;
+    color: var(--accent);
+  }
   .note .tag-list {
     display: flex;
     flex-wrap: wrap;
@@ -317,6 +355,31 @@ function matchesFilter(note) {
   return matchesSearch && matchesTags;
 }
 
+function parseSourceLink(note) {
+  if (!note.sourceLink) return null;
+  try {
+    const parsed = JSON.parse(note.sourceLink);
+    return parsed && parsed.url ? parsed : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function linkPreviewHtml(note) {
+  const link = parseSourceLink(note);
+  if (!link) return "";
+  return `
+    <a class="link-preview" href="${escapeHtml(link.url)}" target="_blank" rel="noopener">
+      ${link.image ? `<img class="link-preview-img" src="${escapeHtml(link.image)}" alt="" onerror="this.style.display='none'">` : ""}
+      <div class="link-preview-text">
+        <div class="link-preview-title">${escapeHtml(link.title || link.url)}</div>
+        ${link.description ? `<div class="link-preview-desc">${escapeHtml(link.description)}</div>` : ""}
+        <div class="link-preview-url">🔗 Đọc bài gốc</div>
+      </div>
+    </a>
+  `;
+}
+
 function noteCardHtml(note, linkTitle) {
   const titleHtml = linkTitle
     ? `<a href="#n=${encodeURIComponent(noteSlug(note))}">${escapeHtml(note.title)}</a>`
@@ -326,6 +389,7 @@ function noteCardHtml(note, linkTitle) {
     <div class="date">${formatDate(note.date)}</div>
     ${note.image ? `<img class="note-img" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" onerror="this.style.display='none'">` : ""}
     ${note.audio ? `<audio class="note-audio" controls src="${escapeHtml(note.audio)}"></audio>` : ""}
+    ${linkPreviewHtml(note)}
     <div class="note-body">${marked.parse(note.content || "")}</div>
     <div class="tag-list">
       ${note.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}

@@ -136,6 +136,125 @@
 
     CMS.registerWidget("audiorecorder", AudioRecorderControl, AudioRecorderPreview);
 
+    /* Custom widget: dán link bài viết, tự lấy tiêu đề/mô tả/ảnh qua Microlink API,
+       lưu tất cả vào 1 field dạng JSON string. */
+    function parseLinkValue(raw) {
+      if (!raw) return null;
+      try {
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.url) return parsed;
+        return null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    var LinkFetcherControl = createClass({
+      getInitialState: function () {
+        var parsed = parseLinkValue(this.props.value);
+        return { loading: false, error: "", inputUrl: parsed ? parsed.url : "" };
+      },
+      handleInputChange: function (e) {
+        this.setState({ inputUrl: e.target.value });
+      },
+      fetchInfo: function () {
+        var self = this;
+        var url = (this.state.inputUrl || "").trim();
+        if (!url) {
+          this.setState({ error: "Dán link vào ô trước đã." });
+          return;
+        }
+        if (!/^https?:\/\//i.test(url)) url = "https://" + url;
+        this.setState({ loading: true, error: "" });
+        fetch("https://api.microlink.io/?url=" + encodeURIComponent(url))
+          .then(function (res) { return res.json(); })
+          .then(function (json) {
+            if (json.status !== "success") throw new Error("fail");
+            var d = json.data || {};
+            var result = {
+              url: url,
+              title: d.title || "",
+              description: d.description || "",
+              image: (d.image && d.image.url) || (d.logo && d.logo.url) || ""
+            };
+            self.props.onChange(JSON.stringify(result));
+            self.setState({ loading: false, error: "" });
+          })
+          .catch(function () {
+            var result = { url: url, title: "", description: "", image: "" };
+            self.props.onChange(JSON.stringify(result));
+            self.setState({
+              loading: false,
+              error: "Không lấy được thông tin bài viết (trang có thể chặn), đã lưu link — anh tự điền tiêu đề nhé."
+            });
+          });
+      },
+      clear: function () {
+        this.props.onChange("");
+        this.setState({ inputUrl: "", error: "" });
+      },
+      render: function () {
+        var parsed = parseLinkValue(this.props.value);
+        if (parsed) {
+          return h(
+            "div",
+            { style: { padding: "6px 0" } },
+            h(
+              "div",
+              { style: { border: "1px solid #ddd", borderRadius: "8px", padding: "10px", display: "flex", gap: "10px" } },
+              parsed.image
+                ? h("img", { src: parsed.image, style: { width: "64px", height: "64px", objectFit: "cover", borderRadius: "6px", flexShrink: "0" } })
+                : null,
+              h(
+                "div",
+                {},
+                h("div", { style: { fontWeight: "600", marginBottom: "4px" } }, parsed.title || "(chưa có tiêu đề)"),
+                parsed.description
+                  ? h("div", { style: { fontSize: "12px", color: "#666", marginBottom: "4px" } }, parsed.description)
+                  : null,
+                h("a", { href: parsed.url, target: "_blank" }, parsed.url)
+              )
+            ),
+            h("button", { type: "button", onClick: this.clear, style: { marginTop: "8px" } }, "Nhập link khác")
+          );
+        }
+        return h(
+          "div",
+          { style: { padding: "6px 0" } },
+          h("input", {
+            type: "text",
+            placeholder: "Dán link bài viết vào đây",
+            value: this.state.inputUrl,
+            onChange: this.handleInputChange,
+            style: { width: "100%", padding: "8px", marginBottom: "8px", boxSizing: "border-box" }
+          }),
+          h(
+            "button",
+            { type: "button", onClick: this.fetchInfo, disabled: this.state.loading },
+            this.state.loading ? "Đang lấy thông tin..." : "🔍 Lấy thông tin"
+          ),
+          this.state.error
+            ? h("div", { style: { color: "#c0392b", fontSize: "12px", marginTop: "6px" } }, this.state.error)
+            : null
+        );
+      }
+    });
+
+    var LinkFetcherPreview = createClass({
+      render: function () {
+        var parsed = parseLinkValue(this.props.value);
+        if (!parsed) return h("div", {}, "(chưa có link)");
+        return h(
+          "div",
+          {},
+          h("div", { style: { fontWeight: "600" } }, parsed.title || parsed.url),
+          h("a", { href: parsed.url, target: "_blank" }, parsed.url)
+        );
+      }
+    });
+
+    CMS.registerWidget("linkfetcher", LinkFetcherControl, LinkFetcherPreview);
+
     if (window.netlifyIdentity) {
       window.netlifyIdentity.on("init", user => {
         if (!user) {

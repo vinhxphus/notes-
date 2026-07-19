@@ -26,7 +26,23 @@ collections:
             fields:
               - { label: "Tiêu đề", name: "title", widget: "string" }
               - { label: "Ngày", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
-              - { label: "Tag", name: "tags", widget: "list", default: [] }
+              - label: "Tag"
+                name: "tags"
+                widget: "select"
+                multiple: true
+                default: []
+                options:
+                  - "hướng dẫn"
+                  - "ý tưởng"
+                  - "công việc"
+                  - "thú vị"
+                  - "đọc"
+                  - "đời sống"
+                  - "sức khoẻ"
+                  - "gia đình"
+                  - "học tập"
+                  - "công nghệ"
               - { label: "Ảnh", name: "image", widget: "image", required: false, default: "" }
               - { label: "Ghi âm", name: "audio", widget: "audiorecorder", required: false, default: "" }
+              - { label: "Link bài viết hay", name: "sourceLink", widget: "linkfetcher", required: false, default: "", hint: "Dán link bài viết, bấm Lấy thông tin để tự điền tiêu đề/mô tả/ảnh. Note sẽ có nút để bấm sang đọc bài gốc." }
               - { label: "Nội dung", name: "content", widget: "markdown", buttons: ["bold", "italic", "link", "bulleted-list", "numbered-list"], modes: ["rich_text"] }
