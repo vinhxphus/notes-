@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Notes của Phú</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
   :root {
     --bg: #faf9f6;
@@ -14,6 +15,15 @@
     --accent-soft: #e6f0ea;
     --border: #e5e2db;
   }
+  :root[data-theme="dark"] {
+    --bg: #17181a;
+    --card: #232427;
+    --ink: #eaeaea;
+    --muted: #9a9a9a;
+    --accent: #6cc39a;
+    --accent-soft: #1e3229;
+    --border: #34363a;
+  }
   * { box-sizing: border-box; }
   body {
     margin: 0;
@@ -21,6 +31,7 @@
     background: var(--bg);
     color: var(--ink);
     line-height: 1.55;
+    transition: background 0.2s ease, color 0.2s ease;
   }
   .wrap {
     max-width: 760px;
@@ -28,7 +39,14 @@
     padding: 48px 20px 80px;
   }
   header {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
   }
   h1 {
     font-size: 1.6rem;
@@ -38,6 +56,37 @@
     color: var(--muted);
     font-size: 0.9rem;
   }
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .icon-btn {
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--ink);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .otd-banner {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+    display: none;
+  }
+  .otd-banner a { color: var(--accent); text-decoration: none; }
+  .otd-banner a:hover { text-decoration: underline; }
   .controls {
     display: flex;
     flex-direction: column;
@@ -80,6 +129,14 @@
     font-size: 0.85rem;
     margin-bottom: 4px;
   }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.88rem;
+  }
+  .back-link:hover { text-decoration: underline; }
   .note {
     background: var(--card);
     border: 1px solid var(--border);
@@ -91,15 +148,29 @@
     font-size: 1.05rem;
     margin: 0 0 6px;
   }
+  .note h2 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .note h2 a:hover { color: var(--accent); }
   .note .date {
     color: var(--muted);
     font-size: 0.78rem;
     margin-bottom: 10px;
   }
-  .note p {
-    margin: 0 0 12px;
-    white-space: pre-wrap;
+  .note-body {
     font-size: 0.94rem;
+    margin-bottom: 12px;
+  }
+  .note-body p { margin: 0 0 10px; }
+  .note-body p:last-child { margin-bottom: 0; }
+  .note-body ul, .note-body ol { margin: 0 0 10px; padding-left: 22px; }
+  .note-body a { color: var(--accent); }
+  .note-body code {
+    background: var(--accent-soft);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.85em;
   }
   .note-img {
     display: block;
@@ -107,6 +178,10 @@
     border-radius: 8px;
     margin: 4px 0 14px;
     border: 1px solid var(--border);
+  }
+  .note-audio {
+    width: 100%;
+    margin: 4px 0 14px;
   }
   .note .tag-list {
     display: flex;
@@ -131,11 +206,22 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>📝 Notes của Phú</h1>
-    <div class="sub">Lưu chủ đề thú vị, ghi chú thường ngày</div>
+    <div class="header-top">
+      <div>
+        <h1>📝 Notes của Phú</h1>
+        <div class="sub">Lưu chủ đề thú vị, ghi chú thường ngày</div>
+      </div>
+      <div class="header-actions">
+        <button id="themeToggle" class="icon-btn" type="button">🌙</button>
+        <a href="record.html" class="icon-btn">🎙️ Ghi âm nhanh</a>
+        <button id="randomBtn" class="icon-btn" type="button">🎲 Ngẫu nhiên</button>
+      </div>
+    </div>
   </header>
 
-  <div class="controls">
+  <div id="onThisDayBanner" class="otd-banner"></div>
+
+  <div class="controls" id="controlsWrap">
     <input id="search" type="text" placeholder="Tìm theo tiêu đề, nội dung, tag...">
     <div class="tags" id="tagFilters"></div>
   </div>
@@ -152,6 +238,25 @@
 let notes = [];
 let activeTags = new Set();
 let searchTerm = "";
+
+marked.setOptions({ breaks: true });
+
+function slugify(str) {
+  const noDiacritics = str
+    .replace(/đ/g, "d").replace(/Đ/g, "D")
+    .normalize("NFD")
+    .split("")
+    .filter(ch => ch.charCodeAt(0) < 0x0300 || ch.charCodeAt(0) > 0x036f)
+    .join("");
+  return noDiacritics
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function noteSlug(note) {
+  return slugify(note.title) + "-" + note.date.slice(0, 10);
+}
 
 function allTags() {
   const s = new Set();
@@ -190,6 +295,22 @@ function matchesFilter(note) {
   return matchesSearch && matchesTags;
 }
 
+function noteCardHtml(note, linkTitle) {
+  const titleHtml = linkTitle
+    ? `<a href="#n=${encodeURIComponent(noteSlug(note))}">${escapeHtml(note.title)}</a>`
+    : escapeHtml(note.title);
+  return `
+    <h2>${titleHtml}</h2>
+    <div class="date">${formatDate(note.date)}</div>
+    ${note.image ? `<img class="note-img" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" onerror="this.style.display='none'">` : ""}
+    ${note.audio ? `<audio class="note-audio" controls src="${escapeHtml(note.audio)}"></audio>` : ""}
+    <div class="note-body">${marked.parse(note.content || "")}</div>
+    <div class="tag-list">
+      ${note.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}
+    </div>
+  `;
+}
+
 function render() {
   renderTagFilters();
   const sorted = [...notes].sort((a, b) => b.date.localeCompare(a.date));
@@ -209,17 +330,37 @@ function render() {
   filtered.forEach(note => {
     const div = document.createElement("div");
     div.className = "note";
-    div.innerHTML = `
-      <h2>${escapeHtml(note.title)}</h2>
-      <div class="date">${formatDate(note.date)}</div>
-      ${note.image ? `<img class="note-img" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" onerror="this.style.display='none'">` : ""}
-      <p>${escapeHtml(note.content)}</p>
-      <div class="tag-list">
-        ${note.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}
-      </div>
-    `;
+    div.innerHTML = noteCardHtml(note, true);
     list.appendChild(div);
   });
+}
+
+function showDetail(note) {
+  document.getElementById("controlsWrap").style.display = "none";
+  document.getElementById("count").style.display = "none";
+  document.getElementById("onThisDayBanner").style.display = "none";
+  const list = document.getElementById("noteList");
+  list.innerHTML = `
+    <a href="#" class="back-link">← Quay lại danh sách</a>
+    <div class="note">${noteCardHtml(note, false)}</div>
+  `;
+}
+
+function showList() {
+  document.getElementById("controlsWrap").style.display = "";
+  document.getElementById("count").style.display = "";
+  renderOnThisDay();
+  render();
+}
+
+function route() {
+  const hash = location.hash;
+  if (hash.startsWith("#n=")) {
+    const slug = decodeURIComponent(hash.slice(3));
+    const note = notes.find(n => noteSlug(n) === slug);
+    if (note) { showDetail(note); return; }
+  }
+  showList();
 }
 
 function escapeHtml(str) {
@@ -228,10 +369,57 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function findOnThisDay() {
+  const today = new Date();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const thisYear = today.getFullYear();
+  return notes.find(n => {
+    const [y, m, day] = n.date.slice(0, 10).split("-");
+    return m === mm && day === dd && Number(y) !== thisYear;
+  });
+}
+
+function renderOnThisDay() {
+  const note = findOnThisDay();
+  const el = document.getElementById("onThisDayBanner");
+  if (!note) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.innerHTML = `📅 Hôm nay năm xưa (${formatDate(note.date)}): <a href="#n=${encodeURIComponent(noteSlug(note))}"><strong>${escapeHtml(note.title)}</strong></a>`;
+}
+
 document.getElementById("search").addEventListener("input", e => {
   searchTerm = e.target.value;
   render();
 });
+
+document.getElementById("randomBtn").addEventListener("click", () => {
+  if (notes.length === 0) return;
+  const note = notes[Math.floor(Math.random() * notes.length)];
+  location.hash = "#n=" + encodeURIComponent(noteSlug(note));
+});
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  document.getElementById("themeToggle").textContent = theme === "dark" ? "☀️" : "🌙";
+}
+
+function initTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved) { applyTheme(saved); return; }
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(prefersDark ? "dark" : "light");
+}
+
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  localStorage.setItem("theme", next);
+});
+
+initTheme();
+window.addEventListener("hashchange", route);
 
 async function loadNotes() {
   try {
@@ -244,7 +432,7 @@ async function loadNotes() {
       '<div class="empty">Không tải được note. Nếu đang mở file trực tiếp trên máy (không qua link web), hãy mở qua link online thay vì mở file trực tiếp.</div>';
     return;
   }
-  render();
+  route();
 }
 
 loadNotes();

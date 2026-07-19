@@ -5,7 +5,7 @@
       "date": "2026-07-17",
       "tags": ["hướng dẫn"],
       "image": "",
-      "content": "Đây là note mẫu. Từ giờ anh có thể thêm note trực tiếp trên web qua trang /admin (đăng nhập bằng email đã được mời), không cần sửa code nữa. Nếu muốn sửa tay, có thể mở file content/notes.json và thêm một khối note mới vào mảng notes."
+      "content": "Đây là note mẫu. Từ giờ anh có thể thêm note trực tiếp trên web qua trang /admin (đăng nhập bằng email đã được mời), không cần sửa code nữa.\n\nMột vài tính năng mới:\n- **In đậm**, *in nghiêng*, danh sách, link — gõ trực tiếp trong ô Nội dung ở /admin.\n- Bấm vào tiêu đề note để xem trang riêng, có thể copy link chia sẻ.\n- Nút 🎲 Ngẫu nhiên và banner \"Hôm nay năm xưa\" ở trang chủ.\n- Nút 🌙 để đổi giao diện sáng/tối.\n- Trang 🎙️ Ghi âm nhanh để ghi âm khi không rảnh gõ chữ, rồi đính kèm vào note qua ô \"Ghi âm\" ở /admin."
     },
     {
       "title": "Ý tưởng hay ho",
