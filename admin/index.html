@@ -24,12 +24,21 @@
         navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
           self.chunks = [];
           self.stream = stream;
-          self.recorder = new MediaRecorder(stream);
+          var options = {};
+          var preferredTypes = ["audio/mp4", "audio/webm", "audio/ogg", "audio/wav"];
+          for (var i = 0; i < preferredTypes.length; i++) {
+            if (window.MediaRecorder.isTypeSupported && window.MediaRecorder.isTypeSupported(preferredTypes[i])) {
+              options.mimeType = preferredTypes[i];
+              break;
+            }
+          }
+          self.recorder = options.mimeType ? new MediaRecorder(stream, options) : new MediaRecorder(stream);
           self.recorder.ondataavailable = function (e) {
             if (e.data.size > 0) self.chunks.push(e.data);
           };
           self.recorder.onstop = function () {
-            var blob = new Blob(self.chunks, { type: "audio/webm" });
+            var actualType = self.recorder.mimeType || "audio/webm";
+            var blob = new Blob(self.chunks, { type: actualType });
             var reader = new FileReader();
             reader.onloadend = function () {
               self.props.onChange(reader.result);
