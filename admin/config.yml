@@ -1,0 +1,28 @@
+backend:
+  name: git-gateway
+  repo: vinhxphus/notes-
+  branch: main
+  identity_url: https://vinhphu-notes-app.netlify.app/.netlify/identity
+  gateway_url: https://vinhphu-notes-app.netlify.app/.netlify/git
+
+media_folder: "images"
+public_folder: "/images"
+
+collections:
+  - name: "notes"
+    label: "Notes"
+    files:
+      - file: "content/notes.json"
+        label: "Danh sách Note"
+        name: "notes"
+        fields:
+          - label: "Danh sách note"
+            name: "notes"
+            widget: "list"
+            summary: "{{title}} — {{date}}"
+            fields:
+              - { label: "Tiêu đề", name: "title", widget: "string" }
+              - { label: "Ngày", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false }
+              - { label: "Tag", name: "tags", widget: "list", default: [] }
+              - { label: "Ảnh", name: "image", widget: "image", required: false, default: "" }
+              - { label: "Nội dung", name: "content", widget: "text" }
