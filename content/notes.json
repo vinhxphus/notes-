@@ -3,30 +3,21 @@
     {
       "title": "Chào mừng đến với trang note cá nhân",
       "date": "2026-07-17",
-      "tags": [
-        "hướng dẫn"
-      ],
-      "image": "/images/img_8865.png",
-      "content": "Đây là note mẫu. Từ giờ anh có thể thêm note trực tiếp trên web qua trang /admin (đăng nhập bằng email đã được mời), không cần sửa code nữa.\n\nMột vài tính năng mới:\n- **In đậm**, *in nghiêng*, danh sách, link — gõ trực tiếp trong ô Nội dung ở /admin.\n- Bấm vào tiêu đề note để xem trang riêng, có thể copy link chia sẻ.\n- Nút 🎲 Ngẫu nhiên và banner \"Hôm nay năm xưa\" ở trang chủ.\n- Nút 🌙 để đổi giao diện sáng/tối.\n- Trang 🎙️ Ghi âm nhanh để ghi âm khi không rảnh gõ chữ, rồi đính kèm vào note qua ô \"Ghi âm\" ở /admin.",
-      "audio": ""
+      "tags": ["hướng dẫn"],
+      "image": "",
+      "content": "Đây là note mẫu. Từ giờ anh có thể thêm note trực tiếp trên web qua trang /admin (đăng nhập bằng email đã được mời), không cần sửa code nữa.\n\nMột vài tính năng mới:\n- **In đậm**, *in nghiêng*, danh sách, link — gõ trực tiếp trong ô Nội dung ở /admin.\n- Bấm vào tiêu đề note để xem trang riêng, có thể copy link chia sẻ.\n- Nút 🎲 Ngẫu nhiên và banner \"Hôm nay năm xưa\" ở trang chủ.\n- Nút 🌙 để đổi giao diện sáng/tối.\n- Ô \"Ghi âm\" ở /admin cho ghi âm trực tiếp ngay trong form, không cần trang riêng, không cần tải file lên."
     },
     {
       "title": "Ý tưởng hay ho",
       "date": "2026-07-16",
-      "tags": [
-        "ý tưởng",
-        "công việc"
-      ],
+      "tags": ["ý tưởng", "công việc"],
       "image": "",
       "content": "Ví dụ một note về công việc — ghi lại ý tưởng cải tiến quy trình, việc cần làm, hoặc bất cứ điều gì muốn nhớ."
     },
     {
       "title": "Điều thú vị đọc được hôm nay",
       "date": "2026-07-15",
-      "tags": [
-        "thú vị",
-        "đọc"
-      ],
+      "tags": ["thú vị", "đọc"],
       "image": "",
       "content": "Ví dụ một note về chủ đề thú vị — bài viết hay, sự kiện đáng chú ý, hoặc kiến thức mới học được."
     }
