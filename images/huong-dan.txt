@@ -1,0 +1,8 @@
+Thư mục này để chứa ảnh dùng trong các note.
+
+Cách dùng:
+1. Bỏ ảnh vào đây, đặt tên không dấu, không dấu cách (vd: bien-da-nang.jpg).
+2. Trong index.html, thêm dòng: image: "images/ten-anh.jpg", vào note tương ứng.
+3. Khi upload lên GitHub, upload cả thư mục images này kèm ảnh bên trong.
+
+File huong-dan.txt này chỉ để giữ thư mục tồn tại, không cần upload lên GitHub.

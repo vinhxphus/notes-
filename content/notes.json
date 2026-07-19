@@ -1,0 +1,25 @@
+{
+  "notes": [
+    {
+      "title": "Chào mừng đến với trang note cá nhân",
+      "date": "2026-07-17",
+      "tags": ["hướng dẫn"],
+      "image": "",
+      "content": "Đây là note mẫu. Từ giờ anh có thể thêm note trực tiếp trên web qua trang /admin (đăng nhập bằng email đã được mời), không cần sửa code nữa. Nếu muốn sửa tay, có thể mở file content/notes.json và thêm một khối note mới vào mảng notes."
+    },
+    {
+      "title": "Ý tưởng hay ho",
+      "date": "2026-07-16",
+      "tags": ["ý tưởng", "công việc"],
+      "image": "",
+      "content": "Ví dụ một note về công việc — ghi lại ý tưởng cải tiến quy trình, việc cần làm, hoặc bất cứ điều gì muốn nhớ."
+    },
+    {
+      "title": "Điều thú vị đọc được hôm nay",
+      "date": "2026-07-15",
+      "tags": ["thú vị", "đọc"],
+      "image": "",
+      "content": "Ví dụ một note về chủ đề thú vị — bài viết hay, sự kiện đáng chú ý, hoặc kiến thức mới học được."
+    }
+  ]
+}

@@ -101,6 +101,13 @@
     white-space: pre-wrap;
     font-size: 0.94rem;
   }
+  .note-img {
+    display: block;
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 4px 0 14px;
+    border: 1px solid var(--border);
+  }
   .note .tag-list {
     display: flex;
     flex-wrap: wrap;
@@ -139,35 +146,10 @@
 
 <script>
 /* ============================================================
-   THÊM NOTE MỚI Ở ĐÂY.
-   Mỗi note gồm: title, date (YYYY-MM-DD), tags (mảng), content.
-   Copy 1 khối {...} bên dưới, sửa nội dung, dán thêm vào mảng.
-   Note mới nên để lên đầu hoặc bất kỳ đâu — trang tự sắp theo ngày mới nhất.
+   Note được đọc từ file content/notes.json (không còn nằm trong file này).
+   Thêm/sửa note qua trang /admin, hoặc sửa tay file content/notes.json.
 ============================================================ */
-const notes = [
-  {
-    title: "Chào mừng đến với trang note cá nhân",
-    date: "2026-07-17",
-    tags: ["hướng dẫn"],
-    content: "Đây là note mẫu. Để thêm note mới, mở file này bằng trình soạn thảo text (Notepad, VS Code...), tìm đến mảng 'notes' trong phần <script>, và thêm một khối như thế này vào đầu danh sách:\n\n{\n  title: \"Tiêu đề note\",\n  date: \"2026-07-18\",\n  tags: [\"chủ đề 1\", \"chủ đề 2\"],\n  content: \"Nội dung note của bạn ở đây.\"\n},\n\nLưu file lại rồi mở lại bằng trình duyệt là thấy note mới ngay."
-  },
-  {
-    title: "Ý tưởng hay ho",
-    date: "2026-07-16",
-    tags: ["ý tưởng", "công việc"],
-    content: "Ví dụ một note về công việc — ghi lại ý tưởng cải tiến quy trình, việc cần làm, hoặc bất cứ điều gì muốn nhớ."
-  },
-  {
-    title: "Điều thú vị đọc được hôm nay",
-    date: "2026-07-15",
-    tags: ["thú vị", "đọc"],
-    content: "Ví dụ một note về chủ đề thú vị — bài viết hay, sự kiện đáng chú ý, hoặc kiến thức mới học được."
-  }
-];
-/* ============================================================
-   HẾT PHẦN CẦN SỬA. Không cần đụng vào code bên dưới.
-============================================================ */
-
+let notes = [];
 let activeTags = new Set();
 let searchTerm = "";
 
@@ -178,7 +160,7 @@ function allTags() {
 }
 
 function formatDate(d) {
-  const [y, m, day] = d.split("-");
+  const [y, m, day] = d.slice(0, 10).split("-");
   return `${day}/${m}/${y}`;
 }
 
@@ -230,6 +212,7 @@ function render() {
     div.innerHTML = `
       <h2>${escapeHtml(note.title)}</h2>
       <div class="date">${formatDate(note.date)}</div>
+      ${note.image ? `<img class="note-img" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" onerror="this.style.display='none'">` : ""}
       <p>${escapeHtml(note.content)}</p>
       <div class="tag-list">
         ${note.tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}
@@ -250,7 +233,21 @@ document.getElementById("search").addEventListener("input", e => {
   render();
 });
 
-render();
+async function loadNotes() {
+  try {
+    const res = await fetch("content/notes.json", { cache: "no-store" });
+    const data = await res.json();
+    notes = data.notes || [];
+  } catch (e) {
+    notes = [];
+    document.getElementById("noteList").innerHTML =
+      '<div class="empty">Không tải được note. Nếu đang mở file trực tiếp trên máy (không qua link web), hãy mở qua link online thay vì mở file trực tiếp.</div>';
+    return;
+  }
+  render();
+}
+
+loadNotes();
 </script>
 </body>
 </html>
